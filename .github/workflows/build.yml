@@ -20,30 +20,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: build ffmpeg
+      # - name: build ffmpeg
+      #   run: |
+      #     while sleep 300; do echo "=====[ $SECONDS seconds still running ]====="; done &
+      #     SKIPINSTALL=yes VERBOSE=yes ./build-ffmpeg --build
+      #     kill %1
+      # - name: check shared library
+      #   run: |
+      #     otool -L ./workspace/bin/ffmpeg
+      # - name: test run ffmepg
+      #   run: |
+      #     ./workspace/bin/ffmpeg -buildconf
+      # - name: clean up
+      #   run: |
+      #     ./build-ffmpeg --cleanup
+      # - name: Compress build folder
+      #   run: |
+      #     tar -czf build.tar.gz workspace/
+      # - name: Upload release assets
+      #   id: action_gh_release
+      #   uses: softprops/action-gh-release@v2
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      #   with:
+      #     name: ffmpeg
+      #     files: build.tar.gz
+      #     prerelease: false
+      - name: Brew
         run: |
-          while sleep 300; do echo "=====[ $SECONDS seconds still running ]====="; done &
-          SKIPINSTALL=yes VERBOSE=yes ./build-ffmpeg --build
-          kill %1
-      - name: check shared library
-        run: |
-          otool -L ./workspace/bin/ffmpeg
-      - name: test run ffmepg
-        run: |
-          ./workspace/bin/ffmpeg -buildconf
-      - name: clean up
-        run: |
-          ./build-ffmpeg --cleanup
-      - name: Compress build folder
-        run: |
-          tar -czf build.tar.gz workspace/
-
-      - name: Upload release assets
-        id: action_gh_release
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          name: ffmpeg
-          files: build.tar.gz
-          prerelease: false
+          brew install curl opencv
