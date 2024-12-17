@@ -52,9 +52,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: ffmpeg
+          tag_name: ${{steps.previous_tag.outputs.tag}}
           files: build.tar.gz
           prerelease: false
-      - name: Brew
-        run: |
-          brew install curl opencv
+
