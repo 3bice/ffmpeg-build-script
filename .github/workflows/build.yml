@@ -63,7 +63,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{steps.previous_tag.outputs.tag}}
+          tag_name: ${{steps.tag.outputs.tag}}
           files: build.tar.gz
           prerelease: false
 
