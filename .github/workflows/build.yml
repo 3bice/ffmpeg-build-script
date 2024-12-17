@@ -36,11 +36,11 @@ jobs:
 
       - name: git
         run: |
-          git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
+          git clone https://github.com/3bice/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
 
       - name: build
         run: |
-          python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --catalyst_archs "x86_64" --without objc
+          python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --without objc
       
       - name: Compress build folder
         run: |
