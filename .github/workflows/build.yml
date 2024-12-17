@@ -4,7 +4,6 @@ on:
   push:
     paths-ignore:
       - '*.md'
-      - '*.mp3'
   pull_request:
     branches: [ master ]
 
