@@ -34,17 +34,17 @@ jobs:
       #   run: |
       #     ./build-ffmpeg --cleanup
 
-      # - name: git
-      #   run: |
-      #     git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
+      - name: git
+        run: |
+          git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
 
-      # - name: build
-      #   run: |
-      #     python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --catalyst_archs "x86_64" --without objc
+      - name: build
+        run: |
+          python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --catalyst_archs "x86_64" --without objc
       
       - name: Compress build folder
         run: |
-          tar -czf build.tar.gz .github/
+          tar -czf build.tar.gz build_xcframework/
 
       - name: Tag the repository
         id: tag
