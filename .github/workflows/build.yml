@@ -35,23 +35,24 @@ jobs:
       #   run: |
       #     ./build-ffmpeg --cleanup
 
-      - name: git
-        run: |
-          git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
+      # - name: git
+      #   run: |
+      #     git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
 
-      - name: build
-        run: |
-          python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --catalyst_archs "x86_64" --without objc
+      # - name: build
+      #   run: |
+      #     python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --catalyst_archs "x86_64" --without objc
       
       - name: Compress build folder
         run: |
-          tar -czf build.tar.gz opencv_contrib/
+          tar -czf build.tar.gz .github/
       - name: Upload release assets
         id: action_gh_release
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
+          name: opencv
           tag_name: ${{steps.previous_tag.outputs.tag}}
           files: build.tar.gz
           prerelease: false
