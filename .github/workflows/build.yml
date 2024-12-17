@@ -14,8 +14,8 @@ jobs:
     runs-on: macos-latest
     strategy:
       fail-fast: false
-      matrix:
-        arch: [aarch64]
+      # matrix:
+      #   arch: [aarch64]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,18 +34,27 @@ jobs:
       # - name: clean up
       #   run: |
       #     ./build-ffmpeg --cleanup
-      # - name: Compress build folder
-      #   run: |
-      #     tar -czf build.tar.gz workspace/
-      # - name: Upload release assets
-      #   id: action_gh_release
-      #   uses: softprops/action-gh-release@v2
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     name: ffmpeg
-      #     files: build.tar.gz
-      #     prerelease: false
+
+      - name: git
+        run: |
+          git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
+
+      - name: build
+        run: |
+          python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --catalyst_archs "x86_64" --without objc
+      
+      - name: Compress build folder
+        run: |
+          tar -czf build.tar.gz opencv_contrib/
+      - name: Upload release assets
+        id: action_gh_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          name: ffmpeg
+          files: build.tar.gz
+          prerelease: false
       - name: Brew
         run: |
           brew install curl opencv
