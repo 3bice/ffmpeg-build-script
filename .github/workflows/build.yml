@@ -36,7 +36,7 @@ jobs:
 
       - name: git
         run: |
-          git clone https://github.com/3bice/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
+          git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
 
       - name: build
         run: |
