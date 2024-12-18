@@ -13,8 +13,8 @@ jobs:
     runs-on: macos-latest
     strategy:
       fail-fast: false
-      #matrix:
-      #   arch: [aarch64]
+      matrix:
+        arch: [aarch64]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -34,39 +34,41 @@ jobs:
       #   run: |
       #     ./build-ffmpeg --cleanup
 
-      - name: new
-        run: |
-          brew -h && ffmpeg -h
 
-      # - name: git
-      #   run: |
-      #     git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
+
+      - name: git
+        run: |
+          git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
 
       # - name: build
       #   run: |
       #     python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --without objc
-      
-      # - name: Compress build folder
-      #   run: |
-      #     tar -czf build.tar.gz build_xcframework/
 
-      # - name: Tag the repository
-      #   id: tag
-      #   run: |
-      #     # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
-      #     TAG=v$(date -Iseconds | sed 's/[T:\+]/-/g')
-      #     echo "$TAG"
-      #     echo "tag=$TAG" >> $GITHUB_OUTPUT
-      #     git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
-      #     git push origin $TAG
+      - name: build
+        run: |
+          brew install cmake && mkdir build_opencv && cd build_opencv && cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_EXAMPLES=ON ../opencv -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules && make -j$(sysctl -n hw.ncpu)
+      
+      - name: Compress build folder
+        run: |
+          tar -czf build.tar.gz build_opencv/
+
+      - name: Tag the repository
+        id: tag
+        run: |
+          # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
+          TAG=v$(date -Iseconds | sed 's/[T:\+]/-/g')
+          echo "$TAG"
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
+          git push origin $TAG
     
-      # - name: Upload release assets
-      #   id: action_gh_release
-      #   uses: softprops/action-gh-release@v2
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     tag_name: ${{steps.tag.outputs.tag}}
-      #     files: build.tar.gz
-      #     prerelease: false
+      - name: Upload release assets
+        id: action_gh_release
+        uses: softprops/action-gh-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{steps.tag.outputs.tag}}
+          files: build.tar.gz
+          prerelease: false
 
