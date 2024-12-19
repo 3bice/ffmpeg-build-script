@@ -4,6 +4,7 @@ on:
   push:
     paths-ignore:
       - '*.md'
+      - '*.jpg'
   pull_request:
     branches: [ master ]
 
