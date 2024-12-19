@@ -38,19 +38,19 @@ jobs:
 
       - name: git
         run: |
-          git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
-
-      # - name: build
-      #   run: |
-      #     python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --without objc
+          git clone https://github.com/3bice/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
 
       - name: build
         run: |
-          brew install cmake && mkdir build_opencv && cd build_opencv && cmake -DCMAKE_BUILD_TYPE=Release ../opencv -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -DWITH_FFMPEG=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=OF-DBUILD_opencv_text=OFF -DBUILD_opencv_hdf=OFF -DBUILD_opencv_freetype=OFF -DBUILD_opencv_world=ON && make -j$(sysctl -n hw.ncpu)
+          python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --without objc
+
+      # - name: build
+      #   run: |
+      #     brew install cmake && mkdir build_opencv && cd build_opencv && cmake -DCMAKE_BUILD_TYPE=Release ../opencv -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -DWITH_FFMPEG=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=OF-DBUILD_opencv_text=OFF -DBUILD_opencv_hdf=OFF -DBUILD_opencv_freetype=OFF -DBUILD_opencv_world=ON && make -j$(sysctl -n hw.ncpu)
       
       - name: Compress build folder
         run: |
-          tar -czf build.tar.gz build_opencv/
+          tar -czf build.tar.gz build_xcframework/
 
       - name: Tag the repository
         id: tag
