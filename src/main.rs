@@ -7,7 +7,7 @@ use std::{
 fn main() {
     let mut i = 1;
     loop {
-        println!("start {} times", i);
+        println!("=================> round {}", i);
         i = i + 1;
         let mut have_change = false;
         let current_dir = match env::current_dir() {
@@ -48,6 +48,7 @@ fn main() {
             for line in out.lines() {
                 if !line.trim().starts_with("/usr/local/opt")
                     && !line.trim().starts_with("/opt/homebrew")
+                    && !line.trim().starts_with("/usr/local/Cellar")
                 {
                     continue;
                 }
