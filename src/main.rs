@@ -42,7 +42,7 @@ fn main() {
 
         for line in out.lines() {
             eprintln!("--- {}", line);
-            if !line.trim().starts_with("/usr/local/opt") {
+            if !line.trim().starts_with("/usr/local/opt") && !line.trim().starts_with("/opt/homebrew/opt"){
                 continue;
             }
             let link_to_lib_path = line.trim().split(" ").next().unwrap();
