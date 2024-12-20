@@ -41,7 +41,7 @@ jobs:
 
       - name: build
         run: |
-          brew install cmake && mkdir build_opencv && cd build_opencv && export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@6/lib/pkgconfig" && cmake -DCMAKE_BUILD_TYPE=Release ../opencv -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -DWITH_FFMPEG=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=OF-DBUILD_opencv_text=OFF -DBUILD_opencv_hdf=OFF -DBUILD_opencv_freetype=OFF -DBUILD_opencv_world=ON && make -j$(sysctl -n hw.ncpu) && cd .. && cargo build --release && cp target/release/loder_path build_opencv/lib/loder_path && cd build_opencv/lib && ./loder_path && ./loder_path && ./loder_path 
+          cd build_opencv && export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@6/lib/pkgconfig" && cmake -DCMAKE_BUILD_TYPE=Release ../opencv -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -DWITH_FFMPEG=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=OF-DBUILD_opencv_text=OFF -DBUILD_opencv_hdf=OFF -DBUILD_opencv_freetype=OFF -DBUILD_opencv_world=ON && make -j$(sysctl -n hw.ncpu) && cd .. && cargo build --release && cp target/release/loder_path build_opencv/lib/loder_path && cd build_opencv/lib && ./loder_path && ./loder_path && ./loder_path 
           
       - name: Compress build folder
         run: |
