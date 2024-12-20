@@ -1,77 +1,77 @@
-name: build test
+# name: build test
 
-on:
-  push:
-    paths-ignore:
-      - '*.md'
-      - '*.jpg'
-  pull_request:
-    branches: [ master ]
+# on:
+#   push:
+#     paths-ignore:
+#       - '*.md'
+#       - '*.jpg'
+#   pull_request:
+#     branches: [ master ]
 
-jobs:
-  build-macos:
-    name: build in native macOS
-    runs-on: macos-latest # macos-latest macos-13
-    strategy:
-      fail-fast: false
-      # matrix:
-      #   arch: [x86_64] # aarch64 x86_64
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+# jobs:
+#   build-macos:
+#     name: build in native macOS
+#     runs-on: macos-latest # macos-latest macos-13
+#     strategy:
+#       fail-fast: false
+#       # matrix:
+#       #   arch: [x86_64] # aarch64 x86_64
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v4
 
-      # - name: build ffmpeg
-      #   run: |
-      #     while sleep 300; do echo "=====[ $SECONDS seconds still running ]====="; done &
-      #     SKIPINSTALL=yes VERBOSE=yes ./build-ffmpeg --build
-      #     kill %1
-      # - name: check shared library
-      #   run: |
-      #     otool -L ./workspace/bin/ffmpeg
-      # - name: test run ffmepg
-      #   run: |
-      #     ./workspace/bin/ffmpeg -buildconf
-      # - name: clean up
-      #   run: |
-      #     ./build-ffmpeg --cleanup
+#       # - name: build ffmpeg
+#       #   run: |
+#       #     while sleep 300; do echo "=====[ $SECONDS seconds still running ]====="; done &
+#       #     SKIPINSTALL=yes VERBOSE=yes ./build-ffmpeg --build
+#       #     kill %1
+#       # - name: check shared library
+#       #   run: |
+#       #     otool -L ./workspace/bin/ffmpeg
+#       # - name: test run ffmepg
+#       #   run: |
+#       #     ./workspace/bin/ffmpeg -buildconf
+#       # - name: clean up
+#       #   run: |
+#       #     ./build-ffmpeg --cleanup
 
-      - name: install ffmpeg
-        run: |
-          brew install ffmpeg
+#       - name: install ffmpeg
+#         run: |
+#           brew install ffmpeg
 
-      - name: git
-        run: |
-          git clone https://github.com/3bice/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
+#       - name: git
+#         run: |
+#           git clone https://github.com/3bice/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
 
-      - name: build
-        run: |
-          python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --without objc
+#       - name: build
+#         run: |
+#           python3 opencv/platforms/apple/build_xcframework.py --out ./build_xcframework --contrib opencv_contrib --framework_name=opencv2 --build_only_specified_archs --macos_archs "x86_64" --without objc
 
-      # - name: build
-      #   run: |
-      #     brew install cmake && mkdir build_opencv && cd build_opencv && cmake -DCMAKE_BUILD_TYPE=Release ../opencv -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -DWITH_FFMPEG=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=OF-DBUILD_opencv_text=OFF -DBUILD_opencv_hdf=OFF -DBUILD_opencv_freetype=OFF -DBUILD_opencv_world=ON && make -j$(sysctl -n hw.ncpu)
+#       # - name: build
+#       #   run: |
+#       #     brew install cmake && mkdir build_opencv && cd build_opencv && cmake -DCMAKE_BUILD_TYPE=Release ../opencv -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -DWITH_FFMPEG=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=OF-DBUILD_opencv_text=OFF -DBUILD_opencv_hdf=OFF -DBUILD_opencv_freetype=OFF -DBUILD_opencv_world=ON && make -j$(sysctl -n hw.ncpu)
       
-      - name: Compress build folder
-        run: |
-          tar -czf build.tar.gz build_xcframework/
+#       - name: Compress build folder
+#         run: |
+#           tar -czf build.tar.gz build_xcframework/
 
-      - name: Tag the repository
-        id: tag
-        run: |
-          # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
-          TAG=v$(date -Iseconds | sed 's/[T:\+]/-/g')
-          echo "$TAG"
-          echo "tag=$TAG" >> $GITHUB_OUTPUT
-          git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
-          git push origin $TAG
+#       - name: Tag the repository
+#         id: tag
+#         run: |
+#           # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
+#           TAG=v$(date -Iseconds | sed 's/[T:\+]/-/g')
+#           echo "$TAG"
+#           echo "tag=$TAG" >> $GITHUB_OUTPUT
+#           git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
+#           git push origin $TAG
     
-      - name: Upload release assets
-        id: action_gh_release
-        uses: softprops/action-gh-release@v2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{steps.tag.outputs.tag}}
-          files: build.tar.gz
-          prerelease: false
+#       - name: Upload release assets
+#         id: action_gh_release
+#         uses: softprops/action-gh-release@v2
+#         env:
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#         with:
+#           tag_name: ${{steps.tag.outputs.tag}}
+#           files: build.tar.gz
+#           prerelease: false
 
