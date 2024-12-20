@@ -26,11 +26,11 @@ jobs:
           brew install ffmpeg
 
       - name: Cache build_opencv
-        id: cache-build_opencv_x86_64      # cache-build_opencv cache-build_opencv_x86_64
+        id: cache-build_opencv_x86_64
         uses: actions/cache@v4
         with:
           path: build_opencv
-          key: ${{ runner.os }}-build_opencv_x86_64        # build_opencv build_opencv_x86_64
+          key: ${{ runner.os }}-build_opencv_x86_64
 
       - name: git
         run: |
@@ -68,4 +68,58 @@ jobs:
           files: build.tar.gz
           prerelease: false
 
+  # build-opencv-macos-arm:
+  #   name: build opencv in native arm macOS 
+  #   # https://docs.github.com/en/actions/using-github-hosted-runners/using-github-hosted-runners/about-github-hosted-runners
+  #   runs-on: macos-latest         
+  #   strategy:
+  #     fail-fast: false
+  #     # matrix:
+  #     #   arch: [x86_64]             # aarch64 x86_64
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: install ffmpeg
+  #       run: |
+  #         brew install ffmpeg
+
+  #     - name: Cache build_opencv
+  #       id: cache-build_opencv_arm
+  #       uses: actions/cache@v4
+  #       with:
+  #         path: build_opencv
+  #         key: ${{ runner.os }}-build_opencv_arm
+
+  #     - name: git
+  #       run: |
+  #         git clone https://github.com/opencv/opencv.git && git clone https://github.com/opencv/opencv_contrib.git
+
+  #     - name: build
+  #       run: |
+  #         mkdir -p build_opencv && cd build_opencv && export PKG_CONFIG_PATH="/opt/homebrew/opt/ffmpeg@6/lib/pkgconfig" && cmake -DCMAKE_BUILD_TYPE=Release ../opencv -DOPENCV_EXTRA_MODULES_PATH=../opencv_contrib/modules -DWITH_FFMPEG=ON -DBUILD_SHARED_LIBS=ON -DBUILD_opencv_apps=OFF -DBUILD_opencv_text=OFF -DBUILD_opencv_hdf=OFF -DBUILD_DOCS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_TESTS=OFF -DBUILD_WITH_DEBUG_INFO=OFF -DBUILD_opencv_freetype=OFF -DBUILD_opencv_world=ON && make -j$(sysctl -n hw.ncpu) && cd .. && cargo build --release && cp target/release/loder_path build_opencv/lib/loder_path && cd build_opencv/lib && ./loder_path
+          
+  #     - name: Compress build folder
+  #       run: |
+  #         tar -czf opencv_arm_build.tar.gz build_opencv/lib
+
+  #     - name: Tag the repository
+  #       id: tag
+  #       run: |
+  #         # See https://docs.github.com/en/get-started/using-git/dealing-with-special-characters-in-branch-and-tag-names
+  #         TAG=v$(date -Iseconds | sed 's/[T:\+]/-/g')
+  #         echo "$TAG"
+  #         echo "tag=$TAG" >> $GITHUB_OUTPUT
+  #         git tag -a $TAG -m "Published version $TAG" ${GITHUB_SHA}
+  #         git push origin $TAG
+    
+  #     - name: Upload release assets
+  #       id: action_gh_release
+  #       uses: softprops/action-gh-release@v2
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         tag_name: ${{steps.tag.outputs.tag}}
+  #         files: opencv_arm_build.tar.gz
+  #         prerelease: false
 
