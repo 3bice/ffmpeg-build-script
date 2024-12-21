@@ -67,7 +67,13 @@ fn main() {
                             .append(true)
                             .open(current_dir.parent().unwrap().join("result.txt"))
                             .unwrap();
-                        writeln!(file, "{}", link_to_lib_path).unwrap();
+                        writeln!(
+                            file,
+                            "{} -> {}",
+                            file_path.to_str().unwrap(),
+                            link_to_lib_path
+                        )
+                        .unwrap();
                         continue;
                     }
                     std::fs::copy(
