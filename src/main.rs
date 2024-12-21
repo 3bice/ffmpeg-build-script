@@ -50,6 +50,7 @@ fn main() {
                 if !line.trim().starts_with("/usr/local/opt")
                     && !line.trim().starts_with("/opt/homebrew")
                     && !line.trim().starts_with("/usr/local/Cellar")
+                    && !line.trim().starts_with("/usr/lib")
                 {
                     continue;
                 }
