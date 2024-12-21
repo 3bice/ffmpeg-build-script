@@ -1,5 +1,6 @@
 use std::{
     env::{self},
+    io::Write,
     path::PathBuf,
     process::{exit, Command},
 };
@@ -19,7 +20,7 @@ fn main() {
         };
 
         println!("current dir: {:?}", current_dir);
-        let dir_content = std::fs::read_dir(current_dir).unwrap();
+        let dir_content = std::fs::read_dir(current_dir.clone()).unwrap();
 
         for entry in dir_content {
             let entry = entry.unwrap();
@@ -60,6 +61,14 @@ fn main() {
                 let file_name = link_to_lib_path_buf.file_name().unwrap().to_str().unwrap();
                 println!("dest file: {:?}", file_path.join(file_name));
                 if !file_path.parent().unwrap().join(file_name).exists() {
+                    if !link_to_lib_path_buf.exists() {
+                        let mut file = std::fs::OpenOptions::new()
+                            .create(true)
+                            .append(true)
+                            .open(current_dir.parent().unwrap().join("result.txt"))
+                            .unwrap();
+                        writeln!(file, "{}", link_to_lib_path).unwrap();
+                    }
                     std::fs::copy(
                         link_to_lib_path,
                         file_path.parent().unwrap().join(file_name),
