@@ -46,7 +46,7 @@ jobs:
           
       - name: Compress build folder
         run: |
-          tar -czf build.tar.gz build_opencv
+          tar -czf build.tar.gz build_opencv opencv opencv_contrib
 
       - name: Tag the repository
         id: tag
