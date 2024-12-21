@@ -23,7 +23,7 @@ jobs:
 
       - name: install ffmpeg
         run: |
-          brew install ffmpeg && brew install opencv
+          brew install ffmpeg
 
       # - name: Cache build_opencv
       #   id: cache-build_opencv_x86_64
