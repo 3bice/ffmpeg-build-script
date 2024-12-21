@@ -23,7 +23,7 @@ jobs:
 
       - name: install ffmpeg
         run: |
-          brew install ffmpeg
+          brew install ffmpeg && brew install opencv
 
       # - name: Cache build_opencv
       #   id: cache-build_opencv_x86_64
@@ -82,7 +82,7 @@ jobs:
 
   #     - name: install ffmpeg
   #       run: |
-  #         brew install ffmpeg
+  #         brew install ffmpeg && brew install opencv
 
   #     - name: Cache build_opencv
   #       id: cache-build_opencv_arm
@@ -101,7 +101,7 @@ jobs:
           
   #     - name: Compress build folder
   #       run: |
-  #         tar -czf opencv_arm_build.tar.gz build_opencv
+  #         tar -czf opencv_arm_build.tar.gz build_opencv opencv opencv_contrib
 
   #     - name: Tag the repository
   #       id: tag
