@@ -25,12 +25,12 @@ jobs:
         run: |
           brew install ffmpeg
 
-      - name: Cache build_opencv
-        id: cache-build_opencv_x86_64
-        uses: actions/cache@v4
-        with:
-          path: build_opencv
-          key: ${{ runner.os }}-build_opencv_x86_64
+      # - name: Cache build_opencv
+      #   id: cache-build_opencv_x86_64
+      #   uses: actions/cache@v4
+      #   with:
+      #     path: build_opencv
+      #     key: ${{ runner.os }}-build_opencv_x86_64
 
       - name: git
         run: |
