@@ -25,10 +25,6 @@ fn main() {
             let entry = entry.unwrap();
             let file_path = entry.path();
 
-            if !file_path.ends_with(".dylib") {
-                continue;
-            }
-
             println!("file_path: {:?}", file_path);
             let output = Command::new("otool").arg("-L").arg(&file_path).output();
 
