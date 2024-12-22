@@ -162,7 +162,7 @@ fn main() {
                 Err(e) => println!("x file_path:{}, error: {}", file_path.to_str().unwrap(), e),
             }
 
-            if !have_change {
+            if !have_change || i > 5 {
                 break;
             }
         }
