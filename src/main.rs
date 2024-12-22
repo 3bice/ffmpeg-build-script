@@ -1,10 +1,8 @@
 use std::{
     env::{self},
     ffi::OsStr,
-    io::Write,
     path::PathBuf,
     process::{exit, Command},
-    str::FromStr,
 };
 
 fn command<T: AsRef<OsStr>>(cmd: &str, args: Vec<T>) -> Result<String, Box<dyn std::error::Error>> {
@@ -43,15 +41,19 @@ fn modify(
         if line.trim().starts_with("@rpath") {
             let lib_name = line.split(" ").next().unwrap().split("/").last().unwrap();
             if !current_dir.join(lib_name).exists() {
-                let out = match command(
-                    "find",
-                    vec!["/", "-name", lib_name, "-maxdepth", "5", "2>/dev/null"],
-                ) {
+                let out = match command("find", vec!["/", "-name", lib_name, "-maxdepth", "5"]) {
                     Ok(out) => out,
                     Err(e) => return Err(e),
                 };
                 eprintln!("find libs = {:?}", out);
-                std::fs::copy(out.lines().next().unwrap(), current_dir.join(lib_name)).unwrap();
+                for line in out.lines() {
+                    if line.trim().starts_with("find:") {
+                        continue;
+                    }
+                    eprintln!("start copy line = {:?}", line);
+                    std::fs::copy(line.trim(), current_dir.join(lib_name)).unwrap();
+                    break;
+                }
             }
         }
         if !line.trim().starts_with("/usr/local/opt")
@@ -148,10 +150,7 @@ fn main() {
             let entry = entry.unwrap();
             let file_path = entry.path();
 
-            println!(
-                "************************ file_path: {:?} ************************",
-                file_path
-            );
+            println!("*** file_path: {:?} ***", file_path);
 
             match modify(current_dir.clone(), file_path.clone(), &mut have_change) {
                 Ok(_) => continue,
