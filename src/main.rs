@@ -3,6 +3,7 @@ use std::{
     io::Write,
     path::PathBuf,
     process::{exit, Command},
+    str::FromStr,
 };
 
 fn main() {
@@ -47,6 +48,37 @@ fn main() {
             };
 
             for line in out.lines() {
+                if line.trim().starts_with("@rpath") {
+                    let lib_name = line.split(" ").next().unwrap().split("/").last().unwrap();
+                    if !current_dir.join(lib_name).exists() {
+                        let output = Command::new("finc")
+                            .args(["/", "-name", lib_name, "-maxdepth", "5", "2>/dev/null"])
+                            .output();
+
+                        let out = match output {
+                            Ok(output) => {
+                                if output.status.success() {
+                                    // println!("Output:\n{}", String::from_utf8_lossy(&output.stdout));
+                                    String::from_utf8_lossy(&output.stdout).to_string()
+                                } else {
+                                    eprintln!("Command failed with status: {}", output.status);
+                                    eprintln!(
+                                        "Error Output:\n{}",
+                                        String::from_utf8_lossy(&output.stderr)
+                                    );
+                                    exit(1);
+                                }
+                            }
+                            Err(e) => {
+                                eprintln!("Failed to execute command: {}", e);
+                                exit(1);
+                            }
+                        };
+                        eprintln!("find libs = {:?}", out);
+                        std::fs::copy(out.lines().next().unwrap(), current_dir.join(lib_name))
+                            .unwrap();
+                    }
+                }
                 if !line.trim().starts_with("/usr/local/opt")
                     && !line.trim().starts_with("/opt/homebrew")
                     && !line.trim().starts_with("/usr/local/Cellar")
@@ -62,24 +94,25 @@ fn main() {
                 println!("dest file: {:?}", file_path.join(file_name));
 
                 // source file not exists
-                if !link_to_lib_path_buf.exists() {
-                    let mut file = std::fs::OpenOptions::new()
-                        .create(true)
-                        .append(true)
-                        .open(current_dir.parent().unwrap().join("result.txt"))
-                        .unwrap();
-                    writeln!(
-                        file,
-                        "{} -> {}",
-                        file_path.to_str().unwrap(),
-                        link_to_lib_path
-                    )
-                    .unwrap();
-                    continue;
-                }
+                // if !link_to_lib_path_buf.exists() {
+                //     let mut file = std::fs::OpenOptions::new()
+                //         .create(true)
+                //         .append(true)
+                //         .open(current_dir.parent().unwrap().join("result.txt"))
+                //         .unwrap();
+                //     writeln!(
+                //         file,
+                //         "{} -> {}",
+                //         file_path.to_str().unwrap(),
+                //         link_to_lib_path
+                //     )
+                //     .unwrap();
+                //     continue;
+                // }
 
                 // file not in lib folder
                 if !file_path.parent().unwrap().join(file_name).exists() {
+                    println!("copy...");
                     std::fs::copy(
                         link_to_lib_path,
                         file_path.parent().unwrap().join(file_name),
@@ -90,6 +123,7 @@ fn main() {
                 }
 
                 let origin_lib_file_name = file_path.file_name().unwrap().to_str().unwrap();
+                eprintln!("origin_lib_file_name = {:?}", origin_lib_file_name);
                 if line.contains(origin_lib_file_name) {
                     let output = Command::new("install_name_tool")
                         .arg("-id")
@@ -129,7 +163,7 @@ fn main() {
                 let _out = match output {
                     Ok(output) => {
                         if output.status.success() {
-                            // println!("Output:\n{}", String::from_utf8_lossy(&output.stdout));
+                            println!("Output:\n{}", String::from_utf8_lossy(&output.stdout));
                             String::from_utf8_lossy(&output.stdout).to_string()
                         } else {
                             eprintln!("Command failed with status: {}", output.status);
