@@ -1,8 +1,10 @@
 use std::{
     env::{self},
     ffi::OsStr,
+    io::Write,
     path::PathBuf,
     process::{exit, Command},
+    str::FromStr,
 };
 
 fn command<T: AsRef<OsStr>>(cmd: &str, args: Vec<T>) -> Result<String, Box<dyn std::error::Error>> {
@@ -41,18 +43,30 @@ fn modify(
         if line.trim().starts_with("@rpath") {
             let lib_name = line.split(" ").next().unwrap().split("/").last().unwrap();
             if !current_dir.join(lib_name).exists() {
-                let out = match command("find", vec!["/", "-name", lib_name, "-maxdepth", "5"]) {
-                    Ok(out) => out,
-                    Err(e) => return Err(e),
-                };
-                eprintln!("find libs = {:?}", out);
-                for line in out.lines() {
-                    if line.trim().starts_with("find:") {
-                        continue;
-                    }
-                    eprintln!("start copy line = {:?}", line);
-                    std::fs::copy(line.trim(), current_dir.join(lib_name)).unwrap();
-                    break;
+                // let out = match command("find", vec!["/", "-name", lib_name, "-maxdepth", "5"]) {
+                //     Ok(out) => out,
+                //     Err(e) => return Err(e),
+                // };
+                // eprintln!("find libs = {:?}", out);
+                // for line in out.lines() {
+                //     if line.trim().starts_with("find:") {
+                //         continue;
+                //     }
+                //     eprintln!("start copy line = {:?}", line);
+                //     std::fs::copy(line.trim(), current_dir.join(lib_name)).unwrap();
+                //     break;
+                // }
+                let sys_lib_path = PathBuf::from_str("/usr/local/lib")?.join(lib_name);
+                if sys_lib_path.exists() {
+                    std::fs::copy(sys_lib_path, current_dir.join(lib_name)).unwrap();
+                } else {
+                    let mut file = std::fs::OpenOptions::new()
+                        .create(true)
+                        .append(true)
+                        .open(current_dir.parent().unwrap().join("result.txt"))
+                        .unwrap();
+                    writeln!(file, "{} -> {}", file_path.to_str().unwrap(), lib_name).unwrap();
+                    continue;
                 }
             }
         }
@@ -69,23 +83,6 @@ fn modify(
         let link_to_lib_path_buf = PathBuf::from(link_to_lib_path);
         let file_name = link_to_lib_path_buf.file_name().unwrap().to_str().unwrap();
         println!("dest file: {:?}", file_path.join(file_name));
-
-        // source file not exists
-        // if !link_to_lib_path_buf.exists() {
-        //     let mut file = std::fs::OpenOptions::new()
-        //         .create(true)
-        //         .append(true)
-        //         .open(current_dir.parent().unwrap().join("result.txt"))
-        //         .unwrap();
-        //     writeln!(
-        //         file,
-        //         "{} -> {}",
-        //         file_path.to_str().unwrap(),
-        //         link_to_lib_path
-        //     )
-        //     .unwrap();
-        //     continue;
-        // }
 
         // file not in lib folder
         if !file_path.parent().unwrap().join(file_name).exists() {
