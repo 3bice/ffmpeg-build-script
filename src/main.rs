@@ -50,7 +50,6 @@ fn main() {
                 if !line.trim().starts_with("/usr/local/opt")
                     && !line.trim().starts_with("/opt/homebrew")
                     && !line.trim().starts_with("/usr/local/Cellar")
-                    && !line.trim().starts_with("/usr/lib")
                 {
                     continue;
                 }
@@ -61,27 +60,33 @@ fn main() {
                 let link_to_lib_path_buf = PathBuf::from(link_to_lib_path);
                 let file_name = link_to_lib_path_buf.file_name().unwrap().to_str().unwrap();
                 println!("dest file: {:?}", file_path.join(file_name));
-                if !file_path.parent().unwrap().join(file_name).exists() {
-                    if !link_to_lib_path_buf.exists() {
-                        let mut file = std::fs::OpenOptions::new()
-                            .create(true)
-                            .append(true)
-                            .open(current_dir.parent().unwrap().join("result.txt"))
-                            .unwrap();
-                        writeln!(
-                            file,
-                            "{} -> {}",
-                            file_path.to_str().unwrap(),
-                            link_to_lib_path
-                        )
+
+                // source file not exists
+                if !link_to_lib_path_buf.exists() {
+                    let mut file = std::fs::OpenOptions::new()
+                        .create(true)
+                        .append(true)
+                        .open(current_dir.parent().unwrap().join("result.txt"))
                         .unwrap();
-                        continue;
-                    }
+                    writeln!(
+                        file,
+                        "{} -> {}",
+                        file_path.to_str().unwrap(),
+                        link_to_lib_path
+                    )
+                    .unwrap();
+                    continue;
+                }
+
+                // file not in lib folder
+                if !file_path.parent().unwrap().join(file_name).exists() {
                     std::fs::copy(
                         link_to_lib_path,
                         file_path.parent().unwrap().join(file_name),
                     )
                     .unwrap();
+                } else {
+                    continue;
                 }
 
                 let origin_lib_file_name = file_path.file_name().unwrap().to_str().unwrap();
