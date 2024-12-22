@@ -83,7 +83,7 @@ fn modify(
             continue;
         }
         eprintln!("--- line: {}", line);
-        *have_change = true;
+
         let link_to_lib_path = line.trim().split(" ").next().unwrap();
         eprintln!("link_to_lib_path = {:?}", link_to_lib_path);
         let link_to_lib_path_buf = PathBuf::from(link_to_lib_path);
@@ -98,7 +98,7 @@ fn modify(
         } else {
             continue;
         }
-
+        *have_change = true;
         let origin_lib_file_name = file_path.file_name().unwrap().to_str().unwrap();
         eprintln!("origin_lib_file_name = {:?}", origin_lib_file_name);
         if line.contains(origin_lib_file_name) {
