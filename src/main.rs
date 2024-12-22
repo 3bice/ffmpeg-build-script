@@ -40,6 +40,7 @@ fn modify(
     };
 
     for line in out.lines() {
+        eprintln!("--- line: {}", line);
         if line.trim().starts_with("@rpath") {
             let lib_name = line.split(" ").next().unwrap().split("/").last().unwrap();
             if !current_dir.join(lib_name).exists() {
@@ -56,13 +57,13 @@ fn modify(
                 //     std::fs::copy(line.trim(), current_dir.join(lib_name)).unwrap();
                 //     break;
                 // }
-                *have_change = true;
                 println!(
                     "path not exists: {}",
                     current_dir.join(lib_name).to_str().unwrap()
                 );
                 let sys_lib_path = PathBuf::from_str("/usr/local/lib")?.join(lib_name);
                 if sys_lib_path.exists() {
+                    *have_change = true;
                     println!("start copy {}.", lib_name);
                     std::fs::copy(sys_lib_path, current_dir.join(lib_name)).unwrap();
                 } else {
@@ -82,26 +83,28 @@ fn modify(
         {
             continue;
         }
-        eprintln!("--- line: {}", line);
 
         let link_to_lib_path = line.trim().split(" ").next().unwrap();
-        eprintln!("link_to_lib_path = {:?}", link_to_lib_path);
+        // eprintln!("link_to_lib_path = {:?}", link_to_lib_path);
         let link_to_lib_path_buf = PathBuf::from(link_to_lib_path);
         let file_name = link_to_lib_path_buf.file_name().unwrap().to_str().unwrap();
         let copy_to_path = file_path.parent().unwrap().join(file_name);
-        println!("copy to: {:?}", copy_to_path);
+        // println!("copy to: {:?}", copy_to_path);
 
         // file not in lib folder
         if !copy_to_path.exists() {
+            *have_change = true;
             println!("file not exists: {:?} start copy...", copy_to_path);
             std::fs::copy(link_to_lib_path, copy_to_path)?;
         } else {
             continue;
         }
-        *have_change = true;
+
         let origin_lib_file_name = file_path.file_name().unwrap().to_str().unwrap();
         eprintln!("origin_lib_file_name = {:?}", origin_lib_file_name);
         if line.contains(origin_lib_file_name) {
+            *have_change = true;
+            println!("install_name_tool -id");
             let _out = match command(
                 "install_name_tool",
                 vec![
@@ -115,7 +118,8 @@ fn modify(
             };
             continue;
         }
-
+        *have_change = true;
+        println!("install_name_tool -change");
         let _ = command(
             "install_name_tool",
             vec![
