@@ -67,6 +67,7 @@ fn modify(
                     println!("start copy {}.", lib_name);
                     std::fs::copy(sys_lib_path, current_dir.join(lib_name)).unwrap();
                 } else {
+                    println!("write result.txt");
                     let mut file = std::fs::OpenOptions::new()
                         .create(true)
                         .append(true)
@@ -85,7 +86,7 @@ fn modify(
         }
 
         let link_to_lib_path = line.trim().split(" ").next().unwrap();
-        // eprintln!("link_to_lib_path = {:?}", link_to_lib_path);
+        eprintln!("link_to_lib_path = {:?}", link_to_lib_path);
         let link_to_lib_path_buf = PathBuf::from(link_to_lib_path);
         let file_name = link_to_lib_path_buf.file_name().unwrap().to_str().unwrap();
         let copy_to_path = file_path.parent().unwrap().join(file_name);
@@ -94,10 +95,10 @@ fn modify(
         // file not in lib folder
         if !copy_to_path.exists() {
             *have_change = true;
-            println!("file not exists: {:?} start copy...", copy_to_path);
+            println!("lib folder file not exists: {:?} start copy...", file_name);
             std::fs::copy(link_to_lib_path, copy_to_path)?;
         } else {
-            continue;
+            println!("lib folder file exists: {}, start next line.", file_name);
         }
 
         let origin_lib_file_name = file_path.file_name().unwrap().to_str().unwrap();
