@@ -161,10 +161,9 @@ fn main() {
                 Ok(_) => continue,
                 Err(e) => println!("x file_path:{}, error: {}", file_path.to_str().unwrap(), e),
             }
-
-            if !have_change || i > 5 {
-                break;
-            }
+        }
+        if !have_change {
+            break;
         }
     }
 }
